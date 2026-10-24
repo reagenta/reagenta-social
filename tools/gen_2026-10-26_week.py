@@ -134,12 +134,12 @@ def s_compare(theme, n, N, title, cols, rows):
              f'<table>{head}{body}</table><div style="flex:1"></div>' + foot(f'{n} / {N}', 'q' + str(n)))
     return page(CW, CH, theme, 72, 64, inner)
 
-def s_chips(theme, n, N, title, groups, photo):
+def s_chips(theme, n, N, title, groups, photo, eyebrow='AVE-562'):
     g = ''
     for lab, items in groups:
         g += (f'<div style="font-family:PM;font-weight:600;font-size:20px;letter-spacing:.26em;color:var(--acc);text-transform:uppercase;margin:30px 0 16px">{lab}</div>'
               + '<div>' + ''.join(f'<span class="chip">{i}</span>' for i in items) + '</div>')
-    inner = (f'<div class="eye" style="color:var(--text)"><i></i>AVE-562</div>'
+    inner = (f'<div class="eye" style="color:var(--text)"><i></i>{eyebrow}</div>'
              f'<h1 style="font-size:84px;margin-top:24px">{title}</h1>{g}<div style="flex:1"></div>'
              + panel([photo], h=330, flex=False) + '<div style="height:26px"></div>' + foot(f'{n} / {N}', 'k' + str(n)))
     return page(CW, CH, theme, 72, 56, inner)
@@ -245,18 +245,19 @@ def build():
     out[f'{d}/s1'] = (SW, SH, st_hero('pink', 'Gastro+ · Bedfont', 'Lattosio e SIBO, <em>in un respiro.</em>', 'Portatile, 60 test l\'ora, boccagli SteriBreath.', 'gastroplus'))
     out[f'{d}/s2'] = (SW, SH, st_hero('pink', 'WLD500 · Wanlianda', 'H. pylori senza <em>radiazioni.</em>', '¹³C-urea, NDIR, 25 coppie l\'ora.', 'wld500'))
     out[f'{d}/s3'] = (SW, SH, st_offer('pink', 'Test rapido CiTest', 'H. pylori: <em>lettura in 5 minuti.</em>', 'Kit da 25 test su feci, conservazione 2–30 °C.', ['tphylori'], CTA))
-    # ===================== GIO 29 — Immunodiagnostica (blue) =====================
-    d = '2026-10-29'; N = 7
-    out[f'{d}/c1'] = (CW, CH, s_cover('blue', 'Immunodiagnostica', 'Dal monotest all\'<em>accesso casuale.</em>', 'CLIA, CLEIA, ECLIA ed ELISA: cinque analizzatori per ogni volume di lavoro.', ['autolumo', 'cobas', 'lumipulse'], 1, N))
-    out[f'{d}/c2'] = (CW, CH, s_product('blue', 2, N, 'Autobio · CLIA', 'Autolumo S900', 'CLIA ad accesso casuale.', [('180', 'test / ora'), ('150+', 'parametri'), ('19 min', 'al primo risultato')], '51 posizioni campione di cui 3 STAT, fino a 16 test simultanei per campione.', 'autolumo', name_size=88))
-    out[f'{d}/c3'] = (CW, CH, s_product('blue', 3, N, 'Fujirebio · CLEIA', 'Lumipulse G1200', 'CLEIA con cartucce monotest.', [('120', 'test / ora'), ('100', 'campioni a bordo'), ('24', 'saggi per campione')], 'Separazione magnetica e caricamento continuo: un risultato ogni 30 secondi dopo il primo.', 'lumipulse', name_size=88))
-    out[f'{d}/c4'] = (CW, CH, s_product('blue', 4, N, 'Roche · ECLIA', 'cobas e 411', 'ECLIA con priorità STAT.', [('86', 'test / ora'), ('100+', 'metodiche'), ('9 min', 'alcune applicazioni')], '30 campioni (Disk) o 75 (Rack), 18 posizioni reagenti, rilevamento di livello e coaguli.', 'cobas'))
-    out[f'{d}/c5'] = (CW, CH, s_product('blue', 5, N, 'Diesse · ELISA monotest', 'Chorus Trio', 'ELISA monotest per l\'autoimmunità.', [('30', 'test / ora'), ('30', 'saggi per seduta'), ('150+', 'test disponibili')], 'Dispositivi da 12 o 36 con reagenti già inclusi, riconosciuti da barcode. ANA, ENA, anti-CCP, anti-dsDNA.', 'chorus'))
-    out[f'{d}/c6'] = (CW, CH, s_product('blue', 6, N, 'Assure Tech · CLIA monotest', 'Lumicision CLI1000', 'CLIA monotest, multidisciplinare.', [('CLIA', 'monotest'), ('Multi', 'disciplinare'), ('Pronta', 'consegna')], 'Chiedi il menu dei test disponibili e il pannello dedicato Lumicision.', 'lumicision', name_size=84))
-    out[f'{d}/c7'] = (CW, CH, s_cta('blue', 7, N, 'Scegli l\'analizzatore <em>giusto per te.</em>', ['autolumo', 'lumipulse', 'cobas']))
+    # ===================== GIO 29 — Autolumo S900 (blue) =====================
+    d = '2026-10-29'; N = 8
+    out[f'{d}/c1'] = (CW, CH, s_cover('blue', 'Autobio · CLIA', 'Autolumo S900: <em>la CLIA che accelera.</em>', 'Accesso casuale, 180 test l\'ora e oltre 150 parametri.', ['autolumo'], 1, N))
+    out[f'{d}/c2'] = (CW, CH, s_product('blue', 2, N, 'Autobio · CLIA', 'Autolumo S900', 'Completamente automatico, ad accesso casuale.', [('180', 'test / ora'), ('150+', 'parametri'), ('19 min', 'al primo risultato')], 'Pensato per laboratori piccoli e medi, con tecnologia a chemiluminescenza.', 'autolumo', name_size=88))
+    out[f'{d}/c3'] = (CW, CH, s_guide('blue', 3, N, 'Campioni <em>sotto controllo.</em>', [('51 posizioni, 3 STAT', 'Le urgenze hanno una corsia indipendente.'), ('8–150 µL per test', 'Diluizione automatica fino a 2.601×.'), ('Fino a 16 analiti', 'Per singolo campione, identificato via RFID.')], ['autolumo']))
+    out[f'{d}/c4'] = (CW, CH, s_product('blue', 4, N, 'Autolumo S900 · Reagenti', 'Reagenti sempre <em>al fresco.</em>', 'Refrigerazione indipendente a 2–8 °C, anche in sleep.', [('16', 'posizioni reagenti'), ('2–8 °C', 'anche in sleep'), ('2.000', 'test per set substrato')], 'Caricamento continuo e sostituzione programmata dei reagenti, con gestione automatica dei consumabili.', 'autolumo', name_size=76))
+    out[f'{d}/c5'] = (CW, CH, s_chips('blue', 5, N, '150+ parametri. <em>Ogni area clinica.</em>', [('Endocrinologia', ['Ormoni', 'Tiroide', 'Diabete', 'Metabolismo osseo', 'Pre-natale']), ('Infettivologia', ['Epatiti', 'TORCH', 'EBV', 'Tubercolosi']), ('Oncologia, cuore e autoimmunità', ['Marcatori tumorali', 'Marcatori cardiaci', 'Autoimmunità', 'Allergie'])], 'autolumo', eyebrow='Autolumo S900 · Menu'))
+    out[f'{d}/c6'] = (CW, CH, s_guide('blue', 6, N, 'Compatto, <em>connesso, sicuro.</em>', [('Meno di 0,5 m²', '576 × 796 × 654 mm, circa 85 kg, touchscreen da 15,6″.'), ('USB, LAN e COM', 'Compatibile con LIS e middleware.'), ('Sonda protetta', 'Rilevamento di livello, aria, ostruzione e anticollisione.')], ['autolumo']))
+    out[f'{d}/c7'] = (CW, CH, s_guide('blue', 7, N, 'Non sei <em>mai solo.</em>', [('Installazione e formazione', 'Dopo la consegna, con corso dedicato al tuo personale.'), ('Assistenza', 'Manutenzione preventiva ogni 6 mesi, intervento in 24–48 ore.'), ('Pronta consegna', 'Acquisto oppure noleggio: scegli la formula.')], ['autolumo']))
+    out[f'{d}/c8'] = (CW, CH, s_cta('blue', 8, N, 'Porta la CLIA <em>nel tuo laboratorio.</em>', ['autolumo']))
     out[f'{d}/s1'] = (SW, SH, st_hero('blue', 'Autolumo S900 · CLIA', '19 minuti al <em>primo risultato.</em>', '180 test l\'ora e oltre 150 parametri.', 'autolumo'))
-    out[f'{d}/s2'] = (SW, SH, st_tech('blue', 'Quiz', 'ECLIA, CLEIA <em>o CLIA?</em>', [('cobas', 'ECLIA', 'cobas e 411'), ('lumipulse', 'CLEIA', 'Lumipulse G1200'), ('autolumo', 'CLIA', 'Autolumo S900')], 'Scrivici in DM: scegliamo insieme'))
-    out[f'{d}/s3'] = (SW, SH, st_offer('blue', 'Per i distributori', 'Rivendi sul territorio? <em>Condizioni dedicate.</em>', '60+ produttori, 5.700+ referenze, spedizione tracciata 24/48h.', ['tfob', 'tphylori'], 'Apri il conto B2B su reagenta.it', aud=False))
+    out[f'{d}/s2'] = (SW, SH, st_quiz('blue', 'Autolumo S900', 'Autolumo <em>in numeri.</em>', 'autolumo', [('180', 'test all\'ora', 'CLIA ad accesso casuale'), ('51', 'campioni, 3 STAT', '8–150 µL per test'), ('16', 'analiti per campione', '150+ parametri disponibili')], 'Chiedi la scheda tecnica'))
+    out[f'{d}/s3'] = (SW, SH, st_offer('blue', 'Autolumo S900', 'Acquisto <em>o noleggio.</em>', 'Installazione, formazione e assistenza in 24–48 ore.', ['autolumo'], 'Richiedi la quotazione', aud=False))
     # ===================== VEN 30 — HbA1c / elettroforesi (white) =====================
     d = '2026-10-30'; N = 5
     out[f'{d}/c1'] = (CW, CH, s_cover('white', 'Diabetologia ed emoglobinopatie', 'HbA1c ed emoglobine: <em>HPLC</em> ed elettroforesi.', 'Due analizzatori HPLC Lifotronic e l\'elettroforesi automatica Futurlab.', ['h8', 'h100', 'fe26'], 1, N))
