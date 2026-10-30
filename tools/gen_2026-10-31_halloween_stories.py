@@ -43,10 +43,14 @@ S2=page(f'''<div class="wrap"><img class="logo" src="{LOGO}">
 <div class="sub">Il laboratorio non può fermarsi. Scrivici: rispondiamo noi.</div>
 <div class="card"><img src="{PHOTO}"><div><div class="n">AutoLumo S900</div><div class="m">analizzatore CLIA</div></div></div>
 <div class="btn"><span>Scrivici in DM</span>{ARROW}</div></div>''')
+S0=page(bat(700,1560,1.2)+f'''<svg style="position:absolute;right:120px;top:1000px;width:330px" viewBox="0 0 120 140"><path d="M10 130V60C10 25 35 8 60 8s50 17 50 52v70l-14-12-12 12-12-12-12 12-12-12-12 12-12-12z" fill="#E8ECFA"/><ellipse cx="44" cy="58" rx="7" ry="11" fill="#0C1633"/><ellipse cx="76" cy="58" rx="7" ry="11" fill="#0C1633"/><ellipse cx="60" cy="86" rx="8" ry="11" fill="#0C1633"/></svg><div class="wrap"><img class="logo" src="{LOGO}">
+<div class="eye">Halloween / Edizione Lab</div>
+<h1>Domani <em>sei mostri</em> in laboratorio.</h1>
+<div class="sub">Li conosci già. Alle 10:00 scopri chi sono.</div></div>''')
 out=pathlib.Path("/home/claude/reagenta-social/img/2026-10-31"); 
 with sync_playwright() as p:
     b=p.chromium.launch()
-    for n,h in (("s1",S1),("s2",S2)):
+    for n,h in (("s0",S0),("s1",S1),("s2",S2)):
         f=pathlib.Path(f"/tmp/claude-0/-home-claude/1d8364a1-3051-5239-bfb6-40e8b458227f/scratchpad/{n}.html"); f.write_text(h)
         pg=b.new_page(viewport={"width":1080,"height":1920}); pg.goto("file://"+str(f)); pg.wait_for_timeout(600)
         pg.screenshot(path=str(out/f"{n}.png")); pg.close()
