@@ -55,25 +55,23 @@ POST = f"""<!doctype html><html><head><meta charset="utf-8"><style>{CSS}body{{wi
 <div class="bg"><img src="{PHOTO}" style="width:1080px;left:0;top:-30px"></div>
 <div class="shade" style="top:700px;height:650px;background:linear-gradient(to bottom,rgba(12,22,51,0) 0,rgba(12,22,51,.88) 38%,rgba(12,22,51,.97) 100%)"></div>
 {LOGO % 64}
-<div class="sticker" style="right:64px;top:70px;transform:rotate(5deg);font-size:38px;padding:18px 28px">Ospiti<br>speciali!</div>
-<div class="eye" style="top:930px">Oggi in sede Reagenta</div>
-<h1 style="top:992px;font-size:76px">Dall'altra parte del mondo,<br><em>a casa nostra.</em></h1>
-<p class="sub" style="top:1176px">Una visita da un partner internazionale: così nasce<br>la fiducia che porta tecnologia diagnostica ai laboratori.</p>
+<div class="eye" style="top:930px">Sede Reagenta · Monte di Procida</div>
+<h1 style="top:992px;font-size:76px">Incontro con un<br><em>partner internazionale.</em></h1>
+<p class="sub" style="top:1176px">Qualità, affidabilità e cooperazione: le basi<br>di una diagnostica in vitro al servizio dei laboratori.</p>
 </body></html>"""
 
 STORY = f"""<!doctype html><html><head><meta charset="utf-8"><style>{CSS}body{{width:1080px;height:1920px}}</style></head><body>
 <div class="bg"><img src="{PHOTO}" style="height:1920px;width:auto;left:-190px;top:0"></div>
 <div class="shade" style="top:1080px;height:840px;background:linear-gradient(to bottom,rgba(12,22,51,0) 0,rgba(12,22,51,.9) 34%,rgba(12,22,51,.97) 100%)"></div>
 {LOGO % 250}
-<div class="sticker" style="left:690px;top:300px;transform:rotate(6deg)">Ospiti<br>speciali!</div>
-<div class="eye" style="top:1380px">Oggi in sede Reagenta</div>
-<h1 style="top:1440px;font-size:86px">Benvenuti<br><em>a casa nostra.</em></h1>
-<p class="sub" style="top:1690px;font-size:34px">Un partner internazionale in visita da noi.</p>
+<div class="eye" style="top:1380px">Sede Reagenta · Monte di Procida</div>
+<h1 style="top:1440px;font-size:80px">Incontro con un<br><em>partner internazionale.</em></h1>
+<p class="sub" style="top:1690px;font-size:32px">Diagnostica in vitro: qualità e affidabilità.</p>
 </body></html>"""
 
 with sync_playwright() as p:
     b = p.chromium.launch()
-    for name, html, w, h in (("post-ospiti-internazionali", POST, 1080, 1350), ("story-ospiti-internazionali", STORY, 1080, 1920)):
+    for name, html, w, h in (("post-partner-internazionale", POST, 1080, 1350), ("story-partner-internazionale", STORY, 1080, 1920)):
         f = TMP / f"{name}.html"; f.write_text(html)
         pg = b.new_page(viewport={"width": w, "height": h})
         pg.goto("file://" + str(f)); pg.wait_for_timeout(800)
