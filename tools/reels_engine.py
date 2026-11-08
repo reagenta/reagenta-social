@@ -29,6 +29,10 @@ class Scene:
             spans.append(f'<span class="e" data-k="up" data-in="{s.start+d0+i*step:.3f}" data-d="0.55" style="display:inline-block;margin-right:.28em">{inner}</span>')
         s.parts.append((f'<h1 style="font-size:{size}px;margin-top:{mt}px;{style}">{"".join(spans)}</h1>', None, 0, 0, ""))
         return s
+    def ill(s, svg, js, d=0.35, dur=0.5, style=""):
+        code = html.escape(js, quote=True)
+        s.parts.append((f'<div class="e" data-k="js" data-in="{s.start+d:.3f}" data-d="{dur}" data-js="{code}" style="{style}">{svg}</div>', None, 0, 0, ""))
+        return s
     def render(s):
         th = TH[s.theme]
         v = ";".join(f"--{k}:{x}" for k, x in th.items())
@@ -42,15 +46,19 @@ class Scene:
                 f'<div class="wrap">{head()}{"".join(out)}</div></div>')
 
 JS = """
+const seg=(x,a,b)=>Math.max(0,Math.min(1,(x-a)/(b-a)));
 const ease=p=>1-Math.pow(1-p,3);
 const back=p=>{const c1=1.70158,c3=c1+1;return 1+c3*Math.pow(p-1,3)+c1*Math.pow(p-1,2)};
 function seek(t){
   document.querySelectorAll('.sc').forEach(sc=>{
     const s=+sc.dataset.s,e=+sc.dataset.e;
-    let o=0;
-    if(t>=s&&t<e){o=Math.min(1,(t-s)/0.25); if(t>e-0.25)o=Math.min(o,(e-t)/0.25);}
+    const o=(t>=s&&t<e)?1:0;
     sc.style.opacity=o; sc.style.visibility=o>0?'visible':'hidden';
   });
+  const tr=document.getElementById('tr'); let x=null;
+  for(const b of B){const p=(t-(b-0.3))/0.6; if(p>0&&p<1)x=p;}
+  if(x===null){tr.style.display='none'} else {tr.style.display='block';
+    tr.style.transform=x<0.5?`translateX(${-100+100*ease(x*2)}%)`:`translateX(${100*ease((x-0.5)*2)}%)`}
   document.querySelectorAll('.e').forEach(el=>{
     const i=+el.dataset.in,d=+el.dataset.d,k=el.dataset.k;
     let p=Math.max(0,Math.min(1,(t-i)/d));
@@ -61,6 +69,7 @@ function seek(t){
     else if(k==='fade'){el.style.opacity=ease(p)}
     else if(k==='wipe'){el.style.transformOrigin='left center';el.style.transform=`scaleX(${ease(p)})`;el.style.opacity=p>0?1:0}
     else if(k==='grow'){el.style.transformOrigin='center bottom';el.style.transform=`scaleY(${ease(p)})`;el.style.opacity=p>0?1:0}
+    else if(k==='js'){const f=el._f||(el._f=new Function('p','lt','el','ease','back','seg',"const Q=s=>el.querySelector(s),QA=s=>[...el.querySelectorAll(s)];el.style.opacity=ease(p);el.style.transform='scale('+(0.92+0.08*ease(p))+')';"+el.dataset.js)); f(p,Math.max(0,t-i),el,ease,back,seg);}
     else if(k==='count'){const to=+el.dataset.to,from=+el.dataset.from||0;
       const v=Math.round(from+(to-from)*ease(p));
       el.firstElementChild.textContent=(el.dataset.pad?String(v).padStart(2,'0'):v)+(el.dataset.suffix||'');
@@ -77,12 +86,13 @@ body{{width:1080px;height:1920px;background:#0C1633;position:relative;overflow:h
 .sc{{position:absolute;inset:0;opacity:0;visibility:hidden;color:var(--fg)}}
 .sc .wrap{{top:200px;bottom:330px}}
 .e{{will-change:transform,opacity;opacity:0}}
+#tr{{position:absolute;inset:0;z-index:8;display:none;background:linear-gradient(to right,#0C1633 0 40px,#FF2E5B 40px calc(100% - 40px),#0C1633 calc(100% - 40px))}}
 #pbw{{position:absolute;left:0;right:0;bottom:0;height:12px;background:rgba(127,127,160,.25);z-index:9}}
 #pb{{height:100%;width:0;background:#FF2E5B}}
 .dot{{width:26px;height:26px;border-radius:50%;background:#C9D0EC}}
 .dot.on{{background:#FF2E5B;width:70px;border-radius:14px}}
-</style></head><body>{body}<div id="pbw"><div id="pb"></div></div>
-<script>const T={T};{JS}seek(0)</script></body></html>"""
+</style></head><body>{body}<div id="tr"></div><div id="pbw"><div id="pb"></div></div>
+<script>const T={T};const B={[sc.start for sc in scenes[1:]]};{JS}seek(0)</script></body></html>"""
     f = outdir / f"{name}.html"
     f.write_text(page)
     return f
