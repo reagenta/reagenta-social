@@ -87,7 +87,7 @@ function seek(t){
     else if(k==='fade'){el.style.opacity=ease(p)}
     else if(k==='wipe'){el.style.transformOrigin='left center';el.style.transform=`scaleX(${ease(p)})`;el.style.opacity=p>0?1:0}
     else if(k==='grow'){el.style.transformOrigin='center bottom';el.style.transform=`scaleY(${ease(p)})`;el.style.opacity=p>0?1:0}
-    else if(k==='js'){const f=el._f||(el._f=new Function('p','lt','el','ease','back','seg',"const Q=s=>el.querySelector(s),QA=s=>[...el.querySelectorAll(s)];el.style.opacity=ease(p);el.style.transform='scale('+(0.92+0.08*ease(p))+')';"+el.dataset.js)); f(p,Math.max(0,t-i),el,ease,back,seg);}
+    else if(k==='js'){const f=el._f||(el._f=new Function('p','lt','el','ease','back','seg',"const Q=s=>el.querySelector(s),QA=s=>[...el.querySelectorAll(s)],PO=(g,k,cx,cy)=>g.setAttribute('transform','translate('+cx+' '+cy+') scale('+(k>0?back(Math.min(1,k)):0)+') translate('+(-cx)+' '+(-cy)+')');el.style.opacity=ease(p);el.style.transform='scale('+(0.92+0.08*ease(p))+')';"+el.dataset.js)); f(p,Math.max(0,t-i),el,ease,back,seg);}
     else if(k==='count'){const to=+el.dataset.to,from=+el.dataset.from||0;
       const v=Math.round(from+(to-from)*ease(p));
       el.firstElementChild.textContent=(el.dataset.pad?String(v).padStart(2,'0'):v)+(el.dataset.suffix||'');
