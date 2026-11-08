@@ -2,7 +2,7 @@
 Timeline in JS (seek(t)) -> screenshot di ogni frame con Playwright -> ffmpeg H.264.
 Font, logo e palette come in gen_template / gen_2026-11-09_week_v2.
 """
-import pathlib, subprocess, sys, shutil, html
+import pathlib, subprocess, sys, shutil, html, json
 from playwright.sync_api import sync_playwright
 BASE = pathlib.Path(__file__).resolve().parent
 src = (BASE / "gen_2026-11-09_week_v2.py").read_text().split("\nitems={}")[0]
@@ -17,15 +17,21 @@ def e(inner, kind="up", d=0.0, dur=0.6, style=""):
 
 class Scene:
     def __init__(s, start, end, theme):
-        s.start, s.end, s.theme, s.parts = start, end, theme, []
+        s.start, s.end, s.theme, s.parts, s.ev, s.trans = start, end, theme, [], [], 'wipeL'
     def add(s, inner, kind="up", d=0.0, dur=0.6, style=""):
-        s.parts.append((inner, kind, d, dur, style)); return s
+        s.parts.append((inner, kind, d, dur, style))
+        if kind == 'pop': s.ev.append((s.start + d, 'pop', 0.8))
+        return s
+    def fx(s, items, base=0.0):
+        for off, name, *v in items: s.ev.append((s.start + base + off, name, v[0] if v else 1.0))
+        return s
     def words(s, text, size, d0=0.2, step=0.13, em=(), style="", mt=24):
         """titolo parola per parola; em = indici in magenta"""
         ws = text.split()
         spans = []
         for i, w in enumerate(ws):
             inner = f'<em>{html.escape(w)}</em>' if i in em else html.escape(w)
+            s.ev.append((s.start + d0 + i * step, 'tick', 0.22))
             spans.append(f'<span class="e" data-k="up" data-in="{s.start+d0+i*step:.3f}" data-d="0.55" style="display:inline-block;margin-right:.28em">{inner}</span>')
         s.parts.append((f'<h1 style="font-size:{size}px;margin-top:{mt}px;{style}">{"".join(spans)}</h1>', None, 0, 0, ""))
         return s
@@ -43,7 +49,7 @@ class Scene:
             else:
                 out.append(f'<div class="e" data-k="{kind}" data-in="{s.start+d:.3f}" data-d="{dur}" style="{style}">{inner}</div>')
         return (f'<div class="sc" data-s="{s.start}" data-e="{s.end}" style="background:{th["bg"]};{v}">'
-                f'<div class="wrap">{head()}{"".join(out)}</div></div>')
+                f'<div class="wrap"><div style="height:111px;flex:none"></div>{"".join(out)}</div></div>')
 
 JS = """
 const seg=(x,a,b)=>Math.max(0,Math.min(1,(x-a)/(b-a)));
@@ -55,10 +61,22 @@ function seek(t){
     const o=(t>=s&&t<e)?1:0;
     sc.style.opacity=o; sc.style.visibility=o>0?'visible':'hidden';
   });
-  const tr=document.getElementById('tr'); let x=null;
-  for(const b of B){const p=(t-(b-0.3))/0.6; if(p>0&&p<1)x=p;}
-  if(x===null){tr.style.display='none'} else {tr.style.display='block';
-    tr.style.transform=x<0.5?`translateX(${-100+100*ease(x*2)}%)`:`translateX(${100*ease((x-0.5)*2)}%)`}
+  let cur=TH_[0]; for(const h of TH_) if(t>=h.s) cur=h;
+  const gh=document.getElementById('gh'); gh.style.setProperty('--wm',cur.wm); gh.style.setProperty('--sub',cur.sub); gh.style.setProperty('--line',cur.line);
+  ['t1','t2','t3a','t3b','t4','t5'].forEach(i=>document.getElementById(i).style.display='none');
+  for(const [b,st] of B){const p=(t-(b-0.3))/0.6; if(!(p>0&&p<1)) continue; const h=p<0.5, q=h?ease(p*2):ease((p-0.5)*2);
+    if(st==='wipeL'||st==='wipeR'){const el=document.getElementById('t1'),d=st==='wipeL'?1:-1;el.style.display='block';
+      el.style.transform=h?`translateX(${-d*100+d*100*q}%)`:`translateX(${d*100*q}%)`}
+    else if(st==='wipeU'){const el=document.getElementById('t2');el.style.display='block';
+      el.style.transform=h?`translateY(${100-100*q}%)`:`translateY(${-100*q}%)`}
+    else if(st==='iris'){const R=(h?q:1-q)*1180;
+      for(const [id,r] of [['t3a',R+50],['t3b',R]]){const el=document.getElementById(id);el.style.display='block';el.style.clipPath=`circle(${Math.max(0,r)}px at 50% 50%)`}}
+    else if(st==='blinds'){const el=document.getElementById('t4');el.style.display='block';
+      [...el.children].forEach((c,i)=>{const u=seg(h?p*2:p*2-1,i*0.04,i*0.04+0.55),k=ease(u);
+        if(h){c.style.transformOrigin='left center';c.style.transform=`scaleX(${k})`}else{c.style.transformOrigin='right center';c.style.transform=`scaleX(${1-k})`}})}
+    else if(st==='slash'){const X=125*q;const el=document.getElementById('t5');el.style.display='block';
+      el.style.clipPath=h?`polygon(0 0,${X}% 0,${X-25}% 100%,0 100%)`:`polygon(${X}% 0,100% 0,100% 100%,${X-25}% 100%)`}
+  }
   document.querySelectorAll('.e').forEach(el=>{
     const i=+el.dataset.in,d=+el.dataset.d,k=el.dataset.k;
     let p=Math.max(0,Math.min(1,(t-i)/d));
@@ -86,19 +104,25 @@ body{{width:1080px;height:1920px;background:#0C1633;position:relative;overflow:h
 .sc{{position:absolute;inset:0;opacity:0;visibility:hidden;color:var(--fg)}}
 .sc .wrap{{top:200px;bottom:330px}}
 .e{{will-change:transform,opacity;opacity:0}}
-#tr{{position:absolute;inset:0;z-index:8;display:none;background:linear-gradient(to right,#0C1633 0 40px,#FF2E5B 40px calc(100% - 40px),#0C1633 calc(100% - 40px))}}
+#gh{{height:111px}}
+.tr{{position:absolute;inset:0;z-index:8;display:none}}
 #pbw{{position:absolute;left:0;right:0;bottom:0;height:12px;background:rgba(127,127,160,.25);z-index:9}}
 #pb{{height:100%;width:0;background:#FF2E5B}}
 .dot{{width:26px;height:26px;border-radius:50%;background:#C9D0EC}}
 .dot.on{{background:#FF2E5B;width:70px;border-radius:14px}}
-</style></head><body>{body}<div id="tr"></div><div id="pbw"><div id="pb"></div></div>
-<script>const T={T};const B={[sc.start for sc in scenes[1:]]};{JS}seek(0)</script></body></html>"""
+</style></head><body>{body}<div id="gh" class="wrap" style="top:200px;z-index:9">{head()}</div>
+<div id="t1" class="tr" style="background:linear-gradient(to right,#0C1633 0 40px,#FF2E5B 40px calc(100% - 40px),#0C1633 calc(100% - 40px))"></div>
+<div id="t2" class="tr" style="background:linear-gradient(to bottom,#0C1633 0 40px,#FF2E5B 40px calc(100% - 40px),#0C1633 calc(100% - 40px))"></div>
+<div id="t3a" class="tr" style="background:#0C1633"></div><div id="t3b" class="tr" style="background:#FF2E5B"></div>
+<div id="t4" class="tr" style="background:none">{"".join(f'<div style="position:absolute;left:0;right:0;top:{i*160}px;height:161px;background:{"#FF2E5B" if i%2==0 else "#0C1633"}"></div>' for i in range(12))}</div>
+<div id="t5" class="tr" style="background:#FF2E5B"></div>
+<div id="pbw"><div id="pb"></div></div>
+<script>const T={T};const B={json.dumps([[sc.start, sc.trans] for sc in scenes[1:]])};const TH_={json.dumps([dict(s=sc.start, wm=TH[sc.theme]['wm'], sub=TH[sc.theme]['sub'], line=TH[sc.theme]['line']) for sc in scenes])};{JS}seek(0)</script></body></html>"""
     f = outdir / f"{name}.html"
     f.write_text(page)
     return f
 
-def render(name, T, scenes, outroot):
-    outroot = pathlib.Path(outroot); outroot.mkdir(parents=True, exist_ok=True)
+def render_silent(name, T, scenes):
     work = pathlib.Path("/tmp/claude-0/reelwork") / name
     if work.exists(): shutil.rmtree(work)
     work.mkdir(parents=True)
@@ -112,13 +136,20 @@ def render(name, T, scenes, outroot):
             pg.evaluate(f"seek({i/FPS})")
             pg.screenshot(path=str(work / f"f{i:05d}.jpg"), type="jpeg", quality=92)
         b.close()
-    mp4 = outroot / f"{name}.mp4"
+    sd = pathlib.Path("/tmp/claude-0/silent"); sd.mkdir(parents=True, exist_ok=True)
+    mp4 = sd / f"{name}.mp4"
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-framerate", str(FPS), "-i", str(work / "f%05d.jpg"),
                     "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "21", "-preset", "medium", "-movflags", "+faststart",
                     "-r", str(FPS), str(mp4)], check=True)
-    # frame di anteprima (cover)
-    for tt, nm in ((1.6, "cover"),):
-        shutil.copy(work / f"f{int(tt*FPS):05d}.jpg", outroot / f"{name}-{nm}.jpg")
+    shutil.copy(work / f"f{int(1.6*FPS):05d}.jpg", sd / f"{name}-cover.jpg")
     shutil.rmtree(work)
-    print(mp4, mp4.stat().st_size // 1024, "KB")
     return mp4
+
+def mux(name, wav, outroot):
+    outroot = pathlib.Path(outroot); outroot.mkdir(parents=True, exist_ok=True)
+    out = outroot / f"{name}.mp4"
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", f"/tmp/claude-0/silent/{name}.mp4", "-i", str(wav),
+                    "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", "-shortest", "-movflags", "+faststart", str(out)], check=True)
+    shutil.copy(f"/tmp/claude-0/silent/{name}-cover.jpg", outroot / f"{name}-cover.jpg")
+    print(out, out.stat().st_size // 1024, "KB")
+    return out
