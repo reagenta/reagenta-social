@@ -2,7 +2,7 @@ V = '/home/claude/work/voice/'
 SPECS = {}
 
 SPECS['ecm'] = dict(
-    id='ecm', voice=V + 'ecm.mp3', asr=V + 'ecm.json',
+    theme='ecm', id='ecm', voice=V + 'ecm.mp3', asr=V + 'ecm.json',
     foot=['Fonti: CNFC, delibera 1 del 5/3/2026; FNOMCeO, com. n. 42/2026; Quotidiano Sanità',
           'Esoneri e riduzioni variano caso per caso · verifica sul portale Cogeaps'],
     scenes=[
@@ -35,7 +35,7 @@ SPECS['ecm'] = dict(
     ])
 
 SPECS['prean'] = dict(
-    id='prean', voice=V + 'prean.mp3', asr=V + 'prean.json',
+    theme='prean', id='prean', voice=V + 'prean.mp3', asr=V + 'prean.json',
     foot=['Indicazioni generali di buona pratica preanalitica',
           'Valgono sempre le procedure del tuo laboratorio'],
     scenes=[
@@ -61,7 +61,7 @@ SPECS['prean'] = dict(
     ])
 
 SPECS['ves'] = dict(
-    id='ves', voice=V + 'ves.mp3', asr=V + 'ves.json',
+    theme='ves', id='ves', voice=V + 'ves.mp3', asr=V + 'ves.json',
     foot=['Fonte: scheda tecnica del produttore · dati dichiarati dal produttore',
           'Dispositivo per uso professionale · reagenta.it'],
     scenes=[
@@ -98,7 +98,7 @@ SPECS['ves'] = dict(
     ])
 
 SPECS['resp'] = dict(
-    id='resp', voice=V + 'resp.mp3', asr=V + 'resp.json',
+    theme='resp', id='resp', voice=V + 'resp.mp3', asr=V + 'resp.json',
     foot=['Fonti: legge 24/2017, art. 10; DM 232/2023 · informazioni generali',
           'Non è consulenza legale: verifica la tua polizza con un professionista'],
     scenes=[
@@ -137,7 +137,7 @@ SPECS['resp'] = dict(
     ])
 
 SPECS['s900'] = dict(
-    id='s900', voice=V + 's900.mp3', asr=V + 's900.json',
+    theme='s900', id='s900', voice=V + 's900.mp3', asr=V + 's900.json',
     foot=['Fonte: scheda tecnica del produttore · dati dichiarati dal produttore',
           'Dispositivo per uso professionale · reagenta.it'],
     scenes=[
@@ -176,7 +176,7 @@ SPECS['s900'] = dict(
     ])
 
 SPECS['assist'] = dict(
-    id='assist', voice=V + 'assist.mp3', asr=V + 'assist.json',
+    theme='assist', id='assist', voice=V + 'assist.mp3', asr=V + 'assist.json',
     foot=['Hotline: lun-ven 8:30-18:00 · tel. 081 8045042 · reagenta.it/assistenza',
           'Tempi di intervento con contratto di assistenza attivo'],
     scenes=[
@@ -217,7 +217,7 @@ SPECS['assist'] = dict(
     ])
 
 SPECS['rischio'] = dict(
-    id='rischio', voice=V + 'rischio.mp3', asr=V + 'rischio.json',
+    theme='rischio', id='rischio', voice=V + 'rischio.mp3', asr=V + 'rischio.json',
     foot=['Indicazioni generali · fonte: D.Lgs. 81/2008',
           'Segui sempre la procedura della tua struttura'],
     scenes=[
@@ -258,7 +258,7 @@ SPECS['rischio'] = dict(
     ])
 
 SPECS['hp'] = dict(
-    id='hp', voice=V + 'hp.mp3', asr=V + 'hp.json',
+    theme='hp', id='hp', voice=V + 'hp.mp3', asr=V + 'hp.json',
     foot=['Indicazioni generali · test rapido per uso professionale',
           'Il risultato va interpretato da personale qualificato'],
     scenes=[
@@ -298,7 +298,7 @@ SPECS['hp'] = dict(
     ])
 
 SPECS['campania'] = dict(
-    id='campania', voice=V + 'campania.mp3', asr=V + 'campania.json',
+    theme='campania', id='campania', voice=V + 'campania.mp3', asr=V + 'campania.json',
     foot=['Esperienza presso il Consorzio Campanialab, Camposano (NA)',
           'Informazioni generali · reagenta.it'],
     scenes=[
@@ -336,7 +336,7 @@ SPECS['campania'] = dict(
     ])
 
 SPECS['turni'] = dict(
-    id='turni', voice=V + 'turni.mp3', asr=V + 'turni.json',
+    theme='turni', id='turni', voice=V + 'turni.mp3', asr=V + 'turni.json',
     foot=['Fonte: D.Lgs. 66/2003 · informazioni generali',
           'Valgono anche le previsioni del tuo contratto'],
     scenes=[
