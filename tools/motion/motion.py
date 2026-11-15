@@ -12,18 +12,25 @@ A = '/tmp/reagenta_assets/'
 WD = '/home/claude/work/'
 W, H, FPS = 1080, 1920, 30
 NAVY = (10, 26, 87); MAG = (255, 46, 99); WHITE = (255, 255, 255); SKY = (120, 190, 255); SOFT = (200, 214, 255)
-IB = '/usr/share/fonts/opentype/inter/InterDisplay-Black.otf'
-IX = '/usr/share/fonts/opentype/inter/Inter-ExtraBold.otf'
-IM = '/usr/share/fonts/opentype/inter/Inter-Medium.otf'
-IS = '/usr/share/fonts/opentype/inter/Inter-SemiBold.otf'
+FD = WD + 'fonts/'
+IB = 'SG:Bold'
+IX = 'SG:Bold'
+IM = 'SG:Medium'
+IS = 'SG:Medium'
+MONO = 'MONO'
 COL = {'white': WHITE, 'mag': MAG, 'sky': SKY, 'soft': SOFT, 'navy': NAVY}
 
 
 @functools.lru_cache(None)
-def font(p, s): return ImageFont.truetype(p, s)
+def font(p, s):
+    if p.startswith('SG:'):
+        f = ImageFont.truetype(FD + 'sg.ttf', s); f.set_variation_by_name(p[3:]); return f
+    if p == 'MONO': return ImageFont.truetype(FD + 'plex.ttf', s)
+    return ImageFont.truetype(p, s)
 
 
-logo_l = Image.open(A + 'logo_light.png').convert('RGBA')
+LOGOS = {'light': Image.open(FD + 'logo_light.png').convert('RGBA'), 'dark': Image.open(FD + 'logo_dark.png').convert('RGBA')}
+logo_l = LOGOS['light']
 @functools.lru_cache(None)
 def logo_w(w): return logo_l.resize((w, int(w * logo_l.height / logo_l.width)), Image.LANCZOS)
 
@@ -50,19 +57,21 @@ yy, xx = np.mgrid[0:H, 0:W]
 
 # ---------- themes ----------
 THEMES = {
-    'ecm':      dict(c0=(7, 16, 58),  c1=(18, 40, 120), acc=(255, 46, 99),  sec=(120, 190, 255), o2=(40, 100, 255), ink=(255, 255, 255), bg='orbs',    trans='wipe',    txt='rise',  card='right', row='left',  rc=48, rr=40, chip=34, rs=50, accpos='left'),
-    'prean':    dict(c0=(4, 34, 44),  c1=(8, 92, 98),   acc=(255, 176, 32), sec=(120, 240, 200), o2=(0, 170, 160),  ink=(20, 30, 40),    bg='grid',    trans='push',    txt='slide', card='left',  row='right', rc=20, rr=18, chip=16, rs=22, accpos='top'),
-    'ves':      dict(c0=(44, 6, 28),  c1=(112, 18, 62), acc=(0, 222, 255),  sec=(255, 170, 190), o2=(210, 40, 90),  ink=(10, 20, 40),    bg='rings',   trans='iris',    txt='zoom',  card='zoom',  row='zoom',  rc=70, rr=59, chip=34, rs=50, accpos='bottom'),
-    'resp':     dict(c0=(14, 18, 30), c1=(44, 54, 80),  acc=(70, 226, 190), sec=(190, 205, 235), o2=(90, 110, 170), ink=(10, 24, 30),    bg='stripes', trans='blinds',  txt='drop',  card='up',    row='left',  rc=16, rr=14, chip=12, rs=16, accpos='left'),
-    's900':     dict(c0=(18, 6, 56),  c1=(64, 26, 150), acc=(190, 255, 60), sec=(150, 220, 255), o2=(140, 60, 255), ink=(20, 14, 50),    bg='beams',   trans='zoom',    txt='zoom',  card='right', row='up',    rc=40, rr=34, chip=34, rs=50, accpos='top'),
-    'assist':   dict(c0=(6, 10, 22),  c1=(18, 32, 56),  acc=(255, 96, 52),  sec=(255, 205, 120), o2=(255, 96, 52),  ink=(255, 255, 255), bg='radar',   trans='push_up', txt='slide', card='up',    row='right', rc=30, rr=26, chip=22, rs=30, accpos='left'),
-    'rischio':  dict(c0=(24, 6, 10),  c1=(86, 14, 24),  acc=(255, 214, 0),  sec=(255, 150, 90),  o2=(220, 30, 40),  ink=(30, 10, 10),    bg='hazard',  trans='wipe',    txt='drop',  card='zoom',  row='left',  rc=14, rr=12, chip=10, rs=14, accpos='bottom'),
-    'hp':       dict(c0=(5, 34, 24),  c1=(14, 92, 62),  acc=(255, 112, 92), sec=(170, 255, 150), o2=(30, 190, 110), ink=(255, 255, 255), bg='bubbles', trans='iris',    txt='rise',  card='left',  row='up',    rc=64, rr=55, chip=34, rs=50, accpos='top'),
-    'campania': dict(c0=(2, 30, 72),  c1=(8, 112, 170), acc=(255, 204, 40), sec=(150, 225, 255), o2=(0, 170, 230),  ink=(8, 30, 60),     bg='waves',   trans='push',    txt='fade',  card='zoom',  row='right', rc=36, rr=30, chip=34, rs=40, accpos='left'),
-    'turni':    dict(c0=(34, 20, 8),  c1=(104, 58, 20), acc=(80, 214, 255), sec=(255, 205, 150), o2=(220, 120, 40), ink=(10, 24, 40),    bg='diamonds', trans='blinds', txt='slide', card='right', row='zoom',  rc=24, rr=20, chip=18, rs=24, accpos='bottom'),
+    # palette dal design system di reagenta.it: navy #0E2156 / #0C1633, magenta #FF2E5B, corallo #FF6F90, verde #3EE08A / #1F8A5B, azzurro #9FB0EF, fondi #EEF0F8 #F4F6FC e pastelli
+    'ecm':      dict(dark=True,  c0=(12, 22, 51),   c1=(14, 33, 86),   acc=(255, 46, 91),  sec=(159, 176, 239), o2=(40, 80, 220),   fg=(255, 255, 255), soft=(200, 214, 255), foot=(190, 205, 255), ink=(255, 255, 255), bg='orbs',     trans='wipe',    txt='rise',  card='right', row='left',  rc=48, rr=40, chip=34, rs=50, accpos='left'),
+    'prean':    dict(dark=False, c0=(244, 246, 252), c1=(228, 233, 248), acc=(255, 46, 91),  sec=(91, 100, 136),  o2=(159, 176, 239), fg=(14, 33, 86),    soft=(57, 66, 107),   foot=(91, 100, 136),  ink=(255, 255, 255), bg='grid',     trans='push',    txt='slide', card='left',  row='right', rc=20, rr=18, chip=16, rs=22, accpos='top'),
+    'ves':      dict(dark=True,  c0=(14, 33, 86),   c1=(30, 60, 140),  acc=(255, 111, 144), sec=(159, 176, 239), o2=(255, 46, 91),   fg=(255, 255, 255), soft=(215, 224, 255), foot=(200, 212, 255), ink=(12, 22, 51),    bg='rings',    trans='iris',    txt='zoom',  card='zoom',  row='zoom',  rc=70, rr=59, chip=34, rs=50, accpos='bottom'),
+    'resp':     dict(dark=False, c0=(240, 242, 250), c1=(223, 229, 255), acc=(230, 17, 72),  sec=(91, 100, 136),  o2=(159, 176, 239), fg=(14, 33, 86),    soft=(57, 66, 107),   foot=(91, 100, 136),  ink=(255, 255, 255), bg='stripes',  trans='blinds',  txt='drop',  card='up',    row='left',  rc=16, rr=14, chip=12, rs=16, accpos='left'),
+    's900':     dict(dark=True,  c0=(12, 22, 51),   c1=(20, 44, 110),  acc=(62, 224, 138), sec=(159, 176, 239), o2=(60, 100, 255),  fg=(255, 255, 255), soft=(200, 214, 255), foot=(190, 205, 255), ink=(12, 22, 51),    bg='beams',    trans='zoom',    txt='zoom',  card='right', row='up',    rc=40, rr=34, chip=34, rs=50, accpos='top'),
+    'assist':   dict(dark=False, c0=(234, 240, 255), c1=(214, 224, 252), acc=(255, 46, 91),  sec=(57, 66, 107),   o2=(159, 176, 239), fg=(14, 33, 86),    soft=(57, 66, 107),   foot=(91, 100, 136),  ink=(255, 255, 255), bg='radar',    trans='push_up', txt='slide', card='up',    row='right', rc=30, rr=26, chip=22, rs=30, accpos='left'),
+    'rischio':  dict(dark=True,  c0=(12, 22, 51),   c1=(14, 33, 86),   acc=(255, 46, 91),  sec=(255, 111, 144), o2=(255, 46, 91),   fg=(255, 255, 255), soft=(215, 224, 255), foot=(200, 212, 255), ink=(255, 255, 255), bg='hazard',   trans='wipe',    txt='drop',  card='zoom',  row='left',  rc=14, rr=12, chip=10, rs=14, accpos='bottom'),
+    'hp':       dict(dark=False, c0=(234, 251, 242), c1=(205, 238, 221), acc=(31, 138, 91),  sec=(31, 138, 91),   o2=(62, 224, 138),  fg=(14, 33, 86),    soft=(57, 66, 107),   foot=(74, 84, 120),   ink=(255, 255, 255), bg='bubbles',  trans='iris',    txt='rise',  card='left',  row='up',    rc=64, rr=55, chip=34, rs=50, accpos='top'),
+    'campania': dict(dark=False, c0=(234, 246, 255), c1=(200, 228, 250), acc=(255, 46, 91),  sec=(57, 66, 107),   o2=(120, 170, 255), fg=(14, 33, 86),    soft=(57, 66, 107),   foot=(74, 84, 120),   ink=(255, 255, 255), bg='waves',    trans='push',    txt='fade',  card='zoom',  row='right', rc=36, rr=30, chip=34, rs=40, accpos='left'),
+    'turni':    dict(dark=False, c0=(255, 242, 234), c1=(255, 222, 208), acc=(255, 46, 91),  sec=(112, 121, 160), o2=(255, 111, 144), fg=(14, 33, 86),    soft=(57, 66, 107),   foot=(91, 100, 136),  ink=(255, 255, 255), bg='diamonds', trans='blinds',  txt='slide', card='right', row='zoom',  rc=24, rr=20, chip=18, rs=24, accpos='bottom'),
 }
 TH = THEMES['ecm']
 RC, RR, CHR, RS, ACCPOS, INK = 48, 40, 34, 50, 'left', (255, 255, 255)
+FG = (255, 255, 255); GF = (255, 255, 255, 30); GL = (255, 255, 255, 80); GH = (255, 255, 255, 40); FOOT = (190, 205, 255); PCOL = (255, 255, 255); OVA = 1.0; DOTV = (30, 30, 30)
 TXT, CARDIN, ROWIN, TRANS, BGSTYLE = 'rise', 'right', 'left', 'wipe', 'orbs'
 
 
@@ -73,7 +82,7 @@ def make_base(c0, c1):
     base = c0 * (1 - g) + c1 * g
     dots_ = ((xx % 54 < 3) & (yy % 54 < 3)).astype(np.float32)[..., None]
     dotfade = np.clip(1 - np.abs(yy - H * 0.45) / (H * 0.5), 0, 1)[..., None]
-    base = base + dots_ * dotfade * 30
+    base = base + dots_ * dotfade * np.array(DOTV, np.float32)
     return Image.fromarray(np.clip(base, 0, 255).astype(np.uint8)).convert('RGBA')
 
 
@@ -91,12 +100,18 @@ _bgc = {}
 
 
 def apply_theme(name):
-    global TH, MAG, SKY, COL, BASE, ORB_M, ORB_B, RC, RR, CHR, RS, ACCPOS, INK, TXT, CARDIN, ROWIN, TRANS, BGSTYLE
+    global FG, GF, GL, GH, FOOT, PCOL, OVA, DOTV, SOFT, logo_l, TH, MAG, SKY, COL, BASE, ORB_M, ORB_B, RC, RR, CHR, RS, ACCPOS, INK, TXT, CARDIN, ROWIN, TRANS, BGSTYLE
     TH = THEMES[name]
     MAG = TH['acc']; SKY = TH['sec']; INK = TH['ink']
-    COL = {'white': WHITE, 'mag': MAG, 'sky': SKY, 'soft': SOFT, 'navy': NAVY}
+    light = not TH['dark']
+    FG = TH['fg']; SOFT = TH['soft']; FOOT = TH['foot']; PCOL = TH['fg'] if light else (255, 255, 255)
+    GF = (14, 33, 86, 14) if light else (255, 255, 255, 30); GL = (14, 33, 86, 60) if light else (255, 255, 255, 80)
+    GH = (255, 255, 255, 170) if light else (255, 255, 255, 40)
+    OVA = 1.9 if light else 1.0; DOTV = (-26, -22, -10) if light else (30, 30, 30)
+    logo_l = LOGOS['dark' if light else 'light']; logo_w.cache_clear()
+    COL = {'white': FG, 'mag': MAG, 'sky': SKY, 'soft': SOFT, 'navy': NAVY}
     BASE = make_base(TH['c0'], TH['c1'])
-    ORB_M = orb(1000, TH['acc'], 80 if name != 'ecm' else 95); ORB_B = orb(1100, TH['o2'], 85)
+    ORB_M = orb(1000, TH['acc'], 45 if light else (95 if name == 'ecm' else 80)); ORB_B = orb(1100, TH['o2'], 70 if light else 85)
     RC, RR, CHR, RS, ACCPOS = TH['rc'], TH['rr'], TH['chip'], TH['rs'], TH['accpos']
     TXT, CARDIN, ROWIN, TRANS, BGSTYLE = TH['txt'], TH['card'], TH['row'], TH['trans'], TH['bg']
     _bgc.clear()
@@ -126,7 +141,7 @@ def bg_overlay(style, tt, d, L):
         off = (tt * 40) % 240
         for k in range(-4, 16):
             x0 = k * 240 + off
-            d.polygon([(x0, 0), (x0 + 80, 0), (x0 - 520 + 80, H), (x0 - 520, H)], fill=(255, 255, 255, 12))
+            d.polygon([(x0, 0), (x0 + 80, 0), (x0 - 520 + 80, H), (x0 - 520, H)], fill=FG + (12,))
         d.rectangle([0, 1650, W, 1654], fill=a_ + (90,)); d.rectangle([0, 100, 140, 106], fill=a_ + (160,))
     elif style == 'beams':
         for k in range(6):
@@ -137,14 +152,14 @@ def bg_overlay(style, tt, d, L):
         for k in range(1, 6): d.ellipse([cx - k * 200, cy - k * 200, cx + k * 200, cy + k * 200], outline=s_ + (30,), width=2)
         d.line([cx - 1100, cy, cx + 1100, cy], fill=s_ + (24,), width=2); d.line([cx, cy - 1100, cx, cy + 1100], fill=s_ + (24,), width=2)
         ang = (tt * 70) % 360
-        for j in range(18): d.pieslice([cx - 1100, cy - 1100, cx + 1100, cy + 1100], ang - j * 2 - 2, ang - j * 2, fill=a_ + (int(48 * (1 - j / 18)),))
+        for j in range(18): d.pieslice([cx - 1100, cy - 1100, cx + 1100, cy + 1100], ang - j * 2 - 2, ang - j * 2, fill=(a_ if TH['dark'] else s_) + (int(48 * (1 - j / 18) * (1 if TH['dark'] else 0.55)),))
     elif style == 'hazard':
         off = (tt * 60) % 120
         for k in range(-2, 12):
             x0 = k * 120 + off
             d.polygon([(x0, 0), (x0 + 60, 0), (x0 + 20, 96), (x0 - 40, 96)], fill=a_ + (150,))
             d.polygon([(x0, H - 96), (x0 + 60, H - 96), (x0 + 20, H), (x0 - 40, H)], fill=a_ + (150,))
-        for k in range(6): d.line([0, 300 + k * 210, W, 300 + k * 210 - 160], fill=(255, 255, 255, 12), width=2)
+        for k in range(6): d.line([0, 300 + k * 210, W, 300 + k * 210 - 160], fill=FG + (12,), width=2)
     elif style == 'bubbles':
         for k in range(18):
             x = (k * 193) % W + 30 * math.sin(tt * 0.8 + k); r = 24 + (k * 37) % 70
@@ -174,11 +189,12 @@ def bg(t, off=0.0):
     over(im, ORB_B, 400 + 80 * math.cos(tt * 0.45), -250 + 90 * math.sin(tt * 0.35))
     L = Image.new('RGBA', (W, H), (0, 0, 0, 0)); d = ImageDraw.Draw(L)
     bg_overlay(BGSTYLE, tt, d, L)
+    if OVA != 1.0: L.putalpha(L.getchannel('A').point(lambda v: min(255, int(v * OVA))))
     im.alpha_composite(L)
     L = Image.new('RGBA', (W, H), (0, 0, 0, 0)); d = ImageDraw.Draw(L)
     for x, y, v, r, ph in PART:
         py = (y - tt * v * H * 0.6) % H; px = x + 14 * math.sin(tt + ph); a = int(90 * (0.5 + 0.5 * math.sin(tt * 1.5 + ph)))
-        d.ellipse([px - r, py - r, px + r, py + r], fill=(255, 255, 255, a))
+        d.ellipse([px - r, py - r, px + r, py + r], fill=PCOL + (a if OVA == 1.0 else a // 2,))
     im.alpha_composite(L)
     if len(_bgc) > 6: _bgc.clear()
     _bgc[k] = im
@@ -186,10 +202,11 @@ def bg(t, off=0.0):
 
 
 @functools.lru_cache(None)
-def glass(w, h, r, fill=(255, 255, 255, 30), outline=(255, 255, 255, 80), accent=None, accpos='left'):
+def glass(w, h, r, fill=None, outline=None, accent=None, accpos='left'):
+    fill = fill or GF; outline = outline or GL
     S = 2; L = Image.new('RGBA', (w * S, h * S), (0, 0, 0, 0)); d = ImageDraw.Draw(L)
     d.rounded_rectangle([0, 0, w * S - 1, h * S - 1], radius=r * S, fill=fill, outline=outline, width=2 * S)
-    d.rounded_rectangle([r * S * 0.6, 3 * S, w * S - r * S * 0.6, 6 * S], radius=3 * S, fill=(255, 255, 255, 40))
+    d.rounded_rectangle([r * S * 0.6, 3 * S, w * S - r * S * 0.6, 6 * S], radius=3 * S, fill=GH)
     if accent:
         if accpos == 'left': d.rounded_rectangle([0, r * S * 0.5, 8 * S, h * S - r * S * 0.5], radius=4 * S, fill=accent)
         elif accpos == 'top': d.rounded_rectangle([r * S * 0.5, 0, w * S - r * S * 0.5, 9 * S], radius=4 * S, fill=accent)
@@ -278,9 +295,9 @@ def it_height(it):
 def draw_chip(pl, it, t, t0, y):
     a = ease((t - t0) / 0.4)
     if a <= 0: return
-    f = font(IS, 32); txt = it['text']; tw = tw_(txt, f)
-    gl = glass(int(tw + 72), 68, CHR, fill=(255, 255, 255, 34)); L = Image.new('RGBA', gl.size); L.alpha_composite(gl)
-    ImageDraw.Draw(L).text((36, 15), txt, font=f, fill=WHITE + (255,))
+    f = font(MONO, 27); txt = it['text']; tw = tw_(txt, f)
+    gl = glass(int(tw + 72), 68, CHR); L = Image.new('RGBA', gl.size); L.alpha_composite(gl)
+    ImageDraw.Draw(L).text((36, 15), txt, font=f, fill=FG + (255,))
     over(pl, fadeL(L, a), W / 2 - gl.width / 2, y + int((1 - a) * 20))
 
 
@@ -314,7 +331,7 @@ def card_img(num, label, nf, accent):
     lines = label.split('|'); h = int(nf * 1.2) + 18 + len(lines) * 50 + 34
     while tw_(num, font(IB, nf)) > 760: nf -= 6
     L = Image.new('RGBA', (860, h), (0, 0, 0, 0)); L.alpha_composite(glass(860, h, RC, accent=accent, accpos=ACCPOS))
-    d = ImageDraw.Draw(L); d.text((52, 14), num, font=font(IB, nf), fill=WHITE + (255,))
+    d = ImageDraw.Draw(L); d.text((52, 14), num, font=font(IB, nf), fill=FG + (255,))
     ly = 14 + int(nf * 1.2) + 4
     for i, l in enumerate(lines): d.text((56, ly + i * 50), l, font=font(IM, 40), fill=SOFT + (255,))
     return L
@@ -334,7 +351,7 @@ def row_img(n, text):
     fn = font(IB, 46); d.text((63 - tw_(n, fn) / 2, 27), n, font=fn, fill=INK + (255,))
     s = 40
     while tw_(text, font(IS, s)) > 700: s -= 2
-    d.text((126, 59 - int(s * 0.64)), text, font=font(IS, s), fill=WHITE + (255,))
+    d.text((126, 59 - int(s * 0.64)), text, font=font(IS, s), fill=FG + (255,))
     return L
 
 
@@ -451,7 +468,7 @@ def make_renderer(spec, scenes, ostart, END):
             fs = 25
             while max(tw_(x, font(IM, fs)) for x in lines) > 980: fs -= 1
             for j, txt in enumerate(lines):
-                L = text_layer(((txt, (190, 205, 255)),), IM, fs)
+                L = text_layer(((txt, FOOT),), IM, fs)
                 over(im, fadeL(L, ease((t - 1.0) / 0.5) * 0.9), 0, (1506, 1546)[j])
 
     def scene_img(i, t):
@@ -468,8 +485,8 @@ def make_renderer(spec, scenes, ostart, END):
         G = Image.new('RGBA', (lw + 300, lg.height + 300), (0, 0, 0, 0)); ImageDraw.Draw(G).ellipse([40, 100, G.width - 40, G.height - 100], fill=MAG + (60,))
         over(im, fadeL(G.filter(ImageFilter.GaussianBlur(60)), a), (W - G.width) // 2, 690 + lg.height // 2 - G.height // 2)
         over(im, fadeL(lg, a), (W - lw) // 2, 690)
-        reveal(im, (('Soluzioni per la', WHITE),), 960, IX, 56, lt, 0.6)
-        reveal(im, (('diagnostica di laboratorio', WHITE),), 1030, IX, 56, lt, 0.75)
+        reveal(im, (('Soluzioni per la', FG),), 960, IX, 56, lt, 0.6)
+        reveal(im, (('diagnostica di laboratorio', FG),), 1030, IX, 56, lt, 0.75)
         k = back((lt - 1.3) / 0.5)
         if k > 0:
             f = font(IS, 40); tw = tw_('reagenta.it', f)
@@ -477,7 +494,7 @@ def make_renderer(spec, scenes, ostart, END):
             ImageDraw.Draw(pl).text((55, 16), 'reagenta.it', font=f, fill=INK + (255,))
             over(im, fadeL(pl, min(1, k)), (W - pl.width) // 2, 1190)
         if lt > 1.8:
-            L = text_layer((('Voce generata con IA', (190, 205, 255)),), IM, 28)
+            L = text_layer((('Voce generata con IA', FOOT),), IM, 28)
             over(im, fadeL(L, ease((lt - 1.8) / 0.5) * 0.9), 0, 1330)
         return im.convert('RGB')
 
